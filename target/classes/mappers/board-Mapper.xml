@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ 
+ 
+<mapper namespace="com.epcot.mappers.board-Mapper">
+
+	<select id="boardList" parameterType="sc"  resultType="bvo">
+	select * from		
+		(select rownum rn, aa.* from	
+			(select * from board where bno > 0
+			    <if test='reg_user != "a"'>
+			      and reg_user like '%'||#{reg_user}||'%'
+			   </if> 
+			   <if test='title != "a"'>
+			      and title like '%'||#{title}||'%'
+			   </if>
+			   <if test='y != "a"'>
+			      and delete_flag = #{y}
+			   </if>
+			   <if test='n != "a"'>
+			      and delete_flag = #{n}
+			   </if> 
+		   	  	<if test='dateFirst != "a"'>
+		   	        <![CDATA[ 
+		  			and reg_datetime >= #{dateFirst}
+		  		]]> 
+		  	</if>
+		  	<if test='dateEnd != "a"'>
+	  	 <![CDATA[  
+	  	  		and reg_datetime <= #{dateEnd}
+	  	 ]]>  
+	   	  	</if>
+			order by bno asc) aa 
+			)
+	<![CDATA[
+	where rn between #{pageStart} and #{endpageNum}
+	]]>
+	</select>
+	
+	<select id="boardview" parameterType="String"  resultType="bvo">
+		select * 
+			from board 
+				where board_id = '${value}'
+					  
+	</select>
+	
+	<update id="boarddelete" parameterType="String">
+		update board
+			set delete_flag = 'y'
+			where board_id = '${value}'
+	</update>
+	
+	<insert id="boardinsert" parameterType="bvo">
+		insert into board (board_id
+						   ,title
+						   ,content
+						   ,reg_datetime
+						   ,reg_user
+						   ,delete_flag
+						   ,email
+						   ,phone
+						   ,bno
+							)	 
+				    values(
+				    		'EPCOT' || 
+				    				TO_CHAR(SYSDATE, 'YYYYMMDD')||
+							    				LPAD(board_id_seq.nextval,3,0) 
+							    				
+					       ,#{title}
+						   ,#{content}
+						   ,TO_CHAR(SYSDATE, 'YYYYMMDD')
+						   ,#{reg_user}
+						   ,'n'
+						   ,#{email}
+						   ,#{phone}
+						   ,board_id_seq.nextval
+						   )
+	</insert>
+	
+	<update id="boardupdate" parameterType="bvo">
+		update board
+			set 
+			   title=#{title}
+			   ,content=#{content}
+			   ,reg_user=#{reg_user}
+			   ,email=#{email}
+			   ,phone=#{phone}
+				where board_id = #{board_id}
+	</update>
+	
+	 <select id="listSearchCount" parameterType="sc" resultType="int">
+ 	
+ 		
+		select count(*) from board where bno > 0
+			    <if test='reg_user != "a"'>
+			      and reg_user like '%'||#{reg_user}||'%'
+			   </if> 
+			   <if test='title != "a"'>
+			      and title like '%'||#{title}||'%'
+			   </if>
+			   <if test='y != "a"'>
+			      and delete_flag = #{y}
+			   </if>
+			   <if test='n != "a"'>
+			      and delete_flag = #{n}
+			   </if> 
+		   	  	<if test='dateFirst != "a"'>
+		   	        <![CDATA[ 
+		  			and reg_datetime >= #{dateFirst}
+		  		]]> 
+		  	</if>
+		  	<if test='dateEnd != "a"'>
+	  	 <![CDATA[  
+	  	  		and reg_datetime <= #{dateEnd}
+	  	 ]]>  
+	   	  	</if>
+			order by bno asc
+ 	
+ 	</select>
+	
+	
+	
+	
+	<!-- 
+	<select id="boardDataSearch" parameterType="sbdto"  resultType="bdto">
+		select * from board where 1 = 1
+		   <if test="searchBoardtype.equals('board_id') ">
+		      and board_id like '%'||#{searchBoardkeyword}||'%'
+		   </if>
+		   <if test="searchBoardtype.equals('title')">
+		      and title like '%'||#{searchBoardkeyword}||'%'
+		   </if>
+		   <if test="searchBoardtype.equals('content')">
+		      and content like '%'||#{searchBoardkeyword}||'%'
+		   </if>
+		   <if test="searchBoardtype.equals('reg_datetitme')">
+		      and reg_datetime like '%'||#{searchBoardkeyword}||'%'
+		   </if>
+	</select>
+	
+	
+	<delete id="deleteBoard" parameterType="bdto">
+		delete from board where board_id = #{board_id}
+	</delete>
+	
+	 -->
+</mapper>
